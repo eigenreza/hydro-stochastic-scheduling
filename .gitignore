@@ -1,0 +1,81 @@
+# Environment and secrets
+.env
+*.env
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Data (raw may be large; processed is reproducible from raw)
+# Keep raw and processed tracked (they are key deliverables here)
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Results (keep figures and tables tracked as deliverables)
+
+# Diagnostic/exploration scripts (not part of the reproducible pipeline)
+check_zones*.py
+check_station_zone.py
+check_rygene.py
+check_no2_stations.py
+reacquire_inflow.py
+rebuild_panel.py
+record_demo*.py
+record_demos*.py
+probe_e2e.py
+probe_e2e_out*.txt
+probe_magasin*.py
+probe_kraftverk*.py
+probe_cascade*.py
+probe_nidelva*.py
+probe_regine*.py
+probe_nesvatn*.py
+probe_nve*.py
+probe_eds*.py
+probe_nordpool.py
+probe_panel.py
+probe_price*.py
+probe_station*.py
+probe_stations*.py
+get_nve_key.py
+run_forecasting_out.txt
+results/*.zip
+results/figures.zip
+results/scenarios.zip
+results/tables.zip
+compare_results.py
+verify_cascade*.py
+sensitivity_lag*.py
+diag_vof*.py
+streamlit_out.txt
+streamlit_err.txt
