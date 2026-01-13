@@ -1,0 +1,26 @@
+station_id,stationName,riverName,countyName,n_days,completeness
+18.10.0,Gjerstad,,Agder,9496,1.0
+18.11.0,Tjellingtjernbekk,,Agder,9496,1.0
+19.107.0,Lilleelv,,Agder,9496,1.0
+19.127.0,Rygene total,,Agder,9496,1.0
+21.11.0,Heisel,,Agder,9496,1.0
+20.3.0,Flakksvann,,Agder,9496,1.0
+19.80.0,Stigvassåi,,Agder,9496,1.0
+20.2.0,Austenå,,Agder,9496,1.0
+20.11.0,Tveitdalen,,Agder,9496,1.0
+19.126.0,Gjermundnes,,Agder,9188,0.967
+21.15.0,Hekni min.vf.,,Agder,8726,0.919
+19.40.0,Lunde Mølle,,Agder,7661,0.807
+19.29.0,Aamfoss,,Agder,7095,0.747
+19.72.0,Jørundland,,Agder,6613,0.696
+19.55.0,Jørundland,,Agder,6613,0.696
+18.4.0,Lundevann,,Agder,6614,0.696
+19.36.0,Evenstad,,Agder,367,0.039
+18.12.0,Skardavatn,,Agder,0,0.0
+18.8.0,Ubergelv,,Agder,0,0.0
+19.39.0,Bøylefoss,,Agder,0,0.0
+20.26.0,Skreros,,Agder,0,0.0
+20.6.0,Ogge,,Agder,0,0.0
+20.4.0,Vikstølvatn,,Agder,0,0.0
+20.9.0,Vikstølvatn ndf.,,Agder,0,0.0
+21.12.0,Byglandsfjord,,Agder,0,0.0

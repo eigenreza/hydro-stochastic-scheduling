@@ -1,0 +1,12 @@
+{
+  "station_id": "19.127.0",
+  "stationName": "Rygene total",
+  "county": "Agder",
+  "riverName": "Arendalsvassdraget",
+  "parameter": 1001,
+  "completeness": 1.0,
+  "n_days": 9496,
+  "start": "2000-01-01",
+  "end": "2025-12-31",
+  "selection_notes": "Re-selected 2026-06-19 following price-zone audit. Original selection (Strengen, 16.142.0, Telemark) was in NO1 price area and represented only a 72 km² unregulated sub-catchment with zero reservoirs — incompatible with the reservoir scheduling model. Rygene total (19.127.0) on the Arendalsvassdraget in Agder is in NO2, has a 3946 km² regulated catchment with 33 reservoirs (including Brokke kraftverk), mean discharge 418 m³/s, and 100% completeness over 2000-2025. See station_scores.csv and no2_station_scores_agder_rogaland.csv for full scoring."
+}
