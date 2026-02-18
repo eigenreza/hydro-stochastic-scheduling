@@ -1,0 +1,15 @@
+# Runtime dependencies for the Streamlit demo app only.
+# Use this file when deploying to Streamlit Community Cloud
+# (set "Python dependencies file" to requirements-app.txt in Advanced settings).
+#
+# The full pipeline (forecasting, scenario generation) needs additional
+# packages listed in requirements.txt, but those are not imported at app
+# runtime and should not be installed on the cloud server.
+
+numpy>=2.0
+pandas>=2.1
+plotly>=5.18
+streamlit>=1.35,<2.0
+pillow>=10.0
+pyomo>=6.7,<7.0
+highspy>=1.7
