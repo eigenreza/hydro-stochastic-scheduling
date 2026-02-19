@@ -73,15 +73,20 @@ def run_live_solve(
     iE = fracs["Evenstad"].reshape(T)
     iR = fracs["Rygene"].reshape(T)
 
-    # Scenario-tree inflows
+    # Scenario-tree inflows (subsample to keep the demo solve fast)
     li_total = tree["leaf_inflow"]          # (T_sc, N)
     T_sc = li_total.shape[0]
+    N_full = li_total.shape[1]
+    N_DEMO = 16
+    idx = np.linspace(0, N_full - 1, min(N_DEMO, N_full), dtype=int)
+    li_total = li_total[:, idx]
     li_local = split_system_inflow(li_total)
     li_J = li_local["Joerundland"]
     li_E = li_local["Evenstad"]
     li_R = li_local["Rygene"]
-    leaf_price   = tree["leaf_price"]       # (T_sc, N)
-    leaf_weights = tree["leaf_weights"]     # (N,)
+    leaf_price   = tree["leaf_price"][:, idx]
+    leaf_weights = tree["leaf_weights"][idx]
+    leaf_weights = leaf_weights / leaf_weights.sum()
 
     dt = np.array([DELTA_WEEKLY ** (-(t + 1)) for t in range(T)])
 
