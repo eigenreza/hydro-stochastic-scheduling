@@ -123,10 +123,31 @@ with st.sidebar:
 
 st.title("Value of Flexibility in Hydropower Scheduling")
 st.markdown(
-    "This project looks at whether it actually pays off to keep your options open "
-    "when scheduling hydropower releases, instead of locking in a plan months "
-    "ahead. It compares that against the opposite extreme, a plan made with "
-    "perfect knowledge of the future, across 22 real historical years."
+    "A hydropower operator running a reservoir faces a genuinely hard problem "
+    "every single week. Water keeps arriving from rain and snowmelt, but nobody "
+    "knows exactly how much is coming next month or next season. Electricity "
+    "prices move up and down with weather, demand, and events nobody can fully "
+    "predict either. The operator has to decide, again and again, how much "
+    "water to release now and sell as electricity, and how much to hold back "
+    "in case prices rise later or a dry spell hits.\n\n"
+    "There are two very different ways to handle this. You could plan the "
+    "whole year ahead of time and stick to that plan no matter what actually "
+    "happens with weather or prices. Or you could keep adjusting as the year "
+    "goes on, reacting to whatever the weather and the market actually do. "
+    "The second approach should, in theory, do better, since you are using "
+    "more information. The question this project asks is how much better, in "
+    "real terms, on a real Norwegian river, using real historical weather and "
+    "price data, not just in theory.\n\n"
+    "To answer that, this project builds two versions of the same underlying "
+    "model. One treats an entire stretch of river as a single large "
+    "reservoir. The other is more realistic and follows three actual power "
+    "plants in sequence along the same river, each with its own real size and "
+    "capacity, since water released by one plant becomes the next plant's "
+    "water supply. Both versions are tested against 22 real historical years, "
+    "comparing a plan made in advance, a plan that adapts as the year "
+    "unfolds, and a third benchmark that assumes perfect knowledge of the "
+    "future, just to see how much is left on the table even for the adaptive "
+    "approach."
 )
 
 # ── Load data ─────────────────────────────────────────────────────────────────
