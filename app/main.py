@@ -61,6 +61,18 @@ st.markdown("""
 with st.sidebar:
     st.title("Controls")
 
+    st.markdown(
+        "There are two versions of the model here. The simple one treats the "
+        "whole river as a single big reservoir. The detailed one models three "
+        "real power plants in a row along the same river, each with its own "
+        "real capacity. The year slider picks which of the 22 historical years "
+        "you're looking at in the Year detail and Capacity explorer tabs. The "
+        "year filter narrows things down to all years, normal years only, or "
+        "just the energy crisis years, so you can see how differently the "
+        "results behave depending on which kind of year you pick."
+    )
+    st.divider()
+
     model_choice = st.radio(
         "Model",
         ["Phase A: Single reservoir", "Phase B: Three-plant cascade"],
@@ -111,11 +123,10 @@ with st.sidebar:
 
 st.title("Value of Flexibility in Hydropower Scheduling")
 st.markdown(
-    "This tool lets you explore the results of a 22-year backtest comparing three "
-    "reservoir release policies: a plan committed at the year start (open-loop), "
-    "a policy that re-optimises quarterly as uncertainty resolves (closed-loop), "
-    "and a perfect-foresight benchmark that knows the future. "
-    "The gap between closed-loop and open-loop revenue is the **value of flexibility**."
+    "This project looks at whether it actually pays off to keep your options open "
+    "when scheduling hydropower releases, instead of locking in a plan months "
+    "ahead. It compares that against the opposite extreme, a plan made with "
+    "perfect knowledge of the future, across 22 real historical years."
 )
 
 # ── Load data ─────────────────────────────────────────────────────────────────
@@ -144,10 +155,10 @@ CLR_PF     = "#7C3AED"
 
 # ── Tabs ─────────────────────────────────────────────────────────────────────
 
-tab_overview, tab_year, tab_live = st.tabs([
-    "VoF Over Time",
-    f"Year detail: {year}",
+tab_live, tab_year, tab_overview = st.tabs([
     "Capacity explorer (live)",
+    f"Year detail: {year}",
+    "VoF Over Time",
 ])
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -155,6 +166,14 @@ tab_overview, tab_year, tab_live = st.tabs([
 # ═══════════════════════════════════════════════════════════════════════════════
 
 with tab_overview:
+    st.markdown(
+        "This tab steps back and shows the full picture across all 22 years at "
+        "once. Each bar is one year, and its height shows how much extra value "
+        "flexibility provided that year, or how much it cost if the bar dips "
+        "below zero. The shaded years mark the 2021 to 2024 energy crisis, when "
+        "prices moved in ways nothing in the historical record had prepared the "
+        "model for. That's why those years look so much more erratic than the rest."
+    )
     if is_cascade:
         # Phase B: show lag=0 vs lag=1 overlay, or per-plant decomposition
         subtab_ts, subtab_decomp = st.tabs(["VoF time series", "Per-plant decomposition"])
@@ -336,6 +355,15 @@ with tab_overview:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 with tab_year:
+    st.markdown(
+        "Here you can pick a single year out of the 22 studied and see exactly "
+        "how the reservoir was managed that year, week by week, under each of "
+        "the three approaches, plus what each one actually earned in revenue. "
+        "The colored note below tells you whether the year was a normal market "
+        "year or part of the energy crisis, which matters because the numbers "
+        "mean something different depending on which kind of year you're in."
+    )
+
     yr_price = ANNUAL_PRICES.get(year, 0)
     is_crisis = year in EXTREME_YEARS
 
@@ -464,10 +492,17 @@ with tab_year:
 with tab_live:
     st.subheader("Capacity explorer: how does VoF change with Jorundland's reservoir size?")
     st.markdown(
-        "The slider re-solves two LPs using HiGHS: an open-loop stochastic program "
-        "(the full annual scenario tree, non-anticipativity on release) and a "
-        "perfect-foresight deterministic program (hindsight optimum). "
-        "The gap between them shows how much value larger storage could unlock."
+        "This tab lets you test the core idea of the project directly, on one of "
+        "the three power plants studied: Jorundland, the one with real water "
+        "storage behind it. Move the slider to change how big that plant's "
+        "reservoir is assumed to be, then press recompute and the math gets "
+        "solved fresh, right then, for whichever year you've picked. The plot "
+        "you get shows two lines: one is a release plan committed up front "
+        "without knowing the future, the other is the best possible outcome if "
+        "you somehow knew the future in advance. The numbers above the plot are "
+        "the revenue each approach actually earns, and the gap between them is "
+        "roughly the value of having better information, not the value of "
+        "flexibility itself, since this open-loop plan is never revised."
     )
 
     colA, colB = st.columns([1, 1])
@@ -634,8 +669,8 @@ with tab_live:
     else:
         st.info("Set the capacity and click Recompute to run a live LP solve.")
         st.caption(
-            "Each click solves two linear programs (open-loop stochastic with 256 "
-            "scenarios + perfect-foresight deterministic) using HiGHS. "
+            "Each click solves two linear programs (open-loop stochastic with a "
+            "16-scenario sample + perfect-foresight deterministic) using HiGHS. "
             "Typical solve time: 1-3 seconds."
         )
 
