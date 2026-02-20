@@ -31,6 +31,42 @@ from src.optimization.cascade_model import (
 from src.optimization.reservoir_model import DELTA_WEEKLY, solve_model
 
 
+class LiveSolveError(Exception):
+    """
+    Raised when the live LP solve cannot produce a usable result.
+
+    `infeasible` is True when the solver determined no physically valid
+    schedule exists for the chosen settings (most commonly: the chosen
+    reservoir capacity is smaller than the storage already required to
+    hold the initial water level for that year). It is False for other
+    solver-related failures (e.g. solver unavailable, numerical issues).
+    """
+
+    def __init__(self, message: str, infeasible: bool = False):
+        super().__init__(message)
+        self.infeasible = infeasible
+
+
+def _solve_or_raise(m):
+    """
+    Solve a model, translating solver failures into LiveSolveError.
+
+    Pyomo's HiGHS interface can fail in two different ways for an
+    infeasible model: solve_model's own RuntimeError (termination
+    condition not optimal), or a lower-level exception raised while
+    attempting to load a solution that was never found (e.g.
+    NoFeasibleSolutionError). Both are treated as solver failures here.
+    """
+    try:
+        return solve_model(m)
+    except Exception as exc:
+        status = str(exc).lower()
+        # Catches both "infeasible" (HiGHS termination condition) and
+        # "a feasible solution was not found" (Pyomo's solution-loading error).
+        infeasible = "feasible" in status
+        raise LiveSolveError(str(exc), infeasible=infeasible) from exc
+
+
 @contextlib.contextmanager
 def _override_smax(s_max_j: float):
     """Temporarily override S_MAX_J and S_MID_J in the cascade_model module."""
@@ -97,7 +133,7 @@ def run_live_solve(
             s_init_J=s_init_j, T=T_sc,
             non_anticipative_stage_weeks=[list(range(1, T_sc + 1))],
         )
-        m_ol, _ = solve_model(m_ol)
+        m_ol, _ = _solve_or_raise(m_ol)
         sched_ol = extract_cascade_schedule(m_ol, scenario_idx=0, T=T_sc)
 
         # Apply committed g_J to realized inflows
@@ -107,7 +143,7 @@ def run_live_solve(
 
         # ── PF: deterministic LP with realized inflow/price ─────────────────
         m_pf = build_cascade_deterministic_lp(iJ, iE, iR, price, s_init_j, T)
-        m_pf, _ = solve_model(m_pf)
+        m_pf, _ = _solve_or_raise(m_pf)
         import pyomo.environ as _pyo
         ts = range(1, T + 1)
         gen_j_pf = np.array([_pyo.value(m_pf.g_J[t]) for t in ts])

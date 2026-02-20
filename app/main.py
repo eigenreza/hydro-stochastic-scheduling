@@ -384,105 +384,116 @@ with tab_year:
         )
 
     # Revenue and VoF metrics
-    if is_cascade:
-        row_b = pb[pb["year"] == year].iloc[0]
-        row_l = pb1[pb1["year"] == year].iloc[0]
-        col1, col2, col3, col4 = st.columns(4)
-        vof_val = row_l["VoF_J_lag1"] if use_lag1 else row_b["VoF_J_MNOK"]
-        ol_val  = row_l["OL_lag1"] if use_lag1 else row_b["OL_total_MNOK"]
-        cl_val  = row_l["CL_lag1"] if use_lag1 else row_b["CL_total_MNOK"]
-        pf_val  = row_l["PF_lag1"] if use_lag1 else row_b["PF_total_MNOK"]
-        with col1:
-            st.metric("OL revenue", f"{ol_val:.1f} MNOK")
-        with col2:
-            st.metric("CL revenue", f"{cl_val:.1f} MNOK")
-        with col3:
-            st.metric("PF revenue", f"{pf_val:.1f} MNOK")
-        with col4:
-            delta_sign = "+" if vof_val > 0 else ""
-            st.metric(
-                f"VoF_J ({lag.split(' ')[2]})",
-                f"{delta_sign}{vof_val:.2f} MNOK",
-                help="CL - OL revenue at Jorundland"
-            )
+    try:
+        if is_cascade:
+            row_b = pb[pb["year"] == year].iloc[0]
+            row_l = pb1[pb1["year"] == year].iloc[0]
+            col1, col2, col3, col4 = st.columns(4)
+            vof_val = row_l["VoF_J_lag1"] if use_lag1 else row_b["VoF_J_MNOK"]
+            ol_val  = row_l["OL_lag1"] if use_lag1 else row_b["OL_total_MNOK"]
+            cl_val  = row_l["CL_lag1"] if use_lag1 else row_b["CL_total_MNOK"]
+            pf_val  = row_l["PF_lag1"] if use_lag1 else row_b["PF_total_MNOK"]
+            with col1:
+                st.metric("OL revenue", f"{ol_val:.1f} MNOK")
+            with col2:
+                st.metric("CL revenue", f"{cl_val:.1f} MNOK")
+            with col3:
+                st.metric("PF revenue", f"{pf_val:.1f} MNOK")
+            with col4:
+                delta_sign = "+" if vof_val > 0 else ""
+                st.metric(
+                    f"VoF_J ({lag.split(' ')[2]})",
+                    f"{delta_sign}{vof_val:.2f} MNOK",
+                    help="CL - OL revenue at Jorundland"
+                )
 
-        # Per-plant VoF bar for this year
-        st.subheader("Per-plant VoF decomposition")
-        plants = ["Jorundland", "Evenstad", "Rygene"]
-        vof_plants = [row_b["VoF_J_MNOK"], row_b["VoF_E_MNOK"], row_b["VoF_R_MNOK"]]
-        fig_decomp = go.Figure(go.Bar(
-            x=vof_plants, y=plants, orientation="h",
-            marker_color=[CLR_NEG if v < 0 else CLR_POS for v in vof_plants],
-        ))
-        fig_decomp.add_vline(x=0, line_color="#999", line_width=1)
-        fig_decomp.update_layout(
-            height=200,
-            margin=dict(l=10, r=20, t=20, b=40),
-            xaxis_title="VoF (MNOK)",
+            # Per-plant VoF bar for this year
+            st.subheader("Per-plant VoF decomposition")
+            plants = ["Jorundland", "Evenstad", "Rygene"]
+            vof_plants = [row_b["VoF_J_MNOK"], row_b["VoF_E_MNOK"], row_b["VoF_R_MNOK"]]
+            fig_decomp = go.Figure(go.Bar(
+                x=vof_plants, y=plants, orientation="h",
+                marker_color=[CLR_NEG if v < 0 else CLR_POS for v in vof_plants],
+            ))
+            fig_decomp.add_vline(x=0, line_color="#999", line_width=1)
+            fig_decomp.update_layout(
+                height=200,
+                margin=dict(l=10, r=20, t=20, b=40),
+                xaxis_title="VoF (MNOK)",
+            )
+            st.plotly_chart(fig_decomp, use_container_width=True)
+            if row_b["VoF_E_MNOK"] == 0.0 and row_b["VoF_R_MNOK"] == 0.0:
+                st.caption(
+                    "VoF_E and VoF_R are exactly zero: both plants' local inflow "
+                    "exceeds their turbine capacity in every week, so policy choice "
+                    "at Jorundland does not change their generation."
+                )
+
+        else:
+            row_a = pa[pa["year"] == year].iloc[0]
+            col1, col2, col3, col4 = st.columns(4)
+            with col1:
+                st.metric("OL revenue", f"{row_a['OL_MNOK']:.1f} MNOK")
+            with col2:
+                st.metric("CL revenue", f"{row_a['CL_MNOK']:.1f} MNOK")
+            with col3:
+                st.metric("PF revenue", f"{row_a['PF_MNOK']:.1f} MNOK")
+            with col4:
+                v = row_a["VoF_MNOK"]
+                st.metric("VoF", f"{'+'  if v > 0 else ''}{v:.1f} MNOK")
+    except (IndexError, KeyError):
+        st.warning(
+            "There's no precomputed result for this year and model combination. "
+            "Try a different year, or switch model."
         )
-        st.plotly_chart(fig_decomp, use_container_width=True)
-        if row_b["VoF_E_MNOK"] == 0.0 and row_b["VoF_R_MNOK"] == 0.0:
-            st.caption(
-                "VoF_E and VoF_R are exactly zero: both plants' local inflow "
-                "exceeds their turbine capacity in every week, so policy choice "
-                "at Jorundland does not change their generation."
-            )
-
-    else:
-        row_a = pa[pa["year"] == year].iloc[0]
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("OL revenue", f"{row_a['OL_MNOK']:.1f} MNOK")
-        with col2:
-            st.metric("CL revenue", f"{row_a['CL_MNOK']:.1f} MNOK")
-        with col3:
-            st.metric("PF revenue", f"{row_a['PF_MNOK']:.1f} MNOK")
-        with col4:
-            v = row_a["VoF_MNOK"]
-            st.metric("VoF", f"{'+'  if v > 0 else ''}{v:.1f} MNOK")
 
     # Trajectory figure
     st.subheader("Weekly trajectory")
     fig_prefix = "cascade_" if is_cascade else ""
     fig_path = ROOT / f"results/figures/{fig_prefix}trajectory_{year}.png"
-    if fig_path.exists():
-        img = Image.open(fig_path)
-        st.image(img, use_container_width=True,
-                 caption=(
-                     f"{'Cascade' if is_cascade else 'Single-reservoir'} trajectory "
-                     f"{year}: storage, generation, inflow, and price. "
-                     "Blue = open-loop, green = closed-loop, purple = perfect foresight."
-                 ))
-    else:
-        st.info(f"Trajectory figure not found at {fig_path}.")
+    try:
+        if fig_path.exists():
+            img = Image.open(fig_path)
+            st.image(img, use_container_width=True,
+                     caption=(
+                         f"{'Cascade' if is_cascade else 'Single-reservoir'} trajectory "
+                         f"{year}: storage, generation, inflow, and price. "
+                         "Blue = open-loop, green = closed-loop, purple = perfect foresight."
+                     ))
+        else:
+            st.info(f"Trajectory figure not found for {year}.")
+    except Exception:
+        st.warning("The trajectory image for this year couldn't be loaded.")
 
     # Regime context: weekly price distribution for this year
     with st.expander("Weekly price distribution this year vs. historical"):
-        panel_yr = get_year_panel(year)
-        hist_panel = load_phase_a()  # just need panel for historical prices
-        from app.data_loader import load_panel
-        full_panel = load_panel()
-        hist_prices = full_panel[
-            full_panel["year"].between(2003, 2020)
-        ]["price_avg_NOK_MWh"]
-        yr_prices = panel_yr["price_avg_NOK_MWh"]
+        try:
+            panel_yr = get_year_panel(year)
+            from app.data_loader import load_panel
+            full_panel = load_panel()
+            hist_prices = full_panel[
+                full_panel["year"].between(2003, 2020)
+            ]["price_avg_NOK_MWh"]
+            yr_prices = panel_yr["price_avg_NOK_MWh"]
 
-        fig_px = go.Figure()
-        fig_px.add_trace(go.Box(
-            y=hist_prices, name="2003-2020 reference",
-            marker_color=CLR_NORMAL, boxmean=True,
-        ))
-        fig_px.add_trace(go.Box(
-            y=yr_prices, name=str(year),
-            marker_color=CLR_CRISIS if is_crisis else CLR_POS,
-            boxmean=True,
-        ))
-        fig_px.update_layout(
-            yaxis_title="Weekly price (NOK/MWh)",
-            height=300,
-            margin=dict(l=50, r=20, t=20, b=40),
-        )
-        st.plotly_chart(fig_px, use_container_width=True)
+            fig_px = go.Figure()
+            fig_px.add_trace(go.Box(
+                y=hist_prices, name="2003-2020 reference",
+                marker_color=CLR_NORMAL, boxmean=True,
+            ))
+            fig_px.add_trace(go.Box(
+                y=yr_prices, name=str(year),
+                marker_color=CLR_CRISIS if is_crisis else CLR_POS,
+                boxmean=True,
+            ))
+            fig_px.update_layout(
+                yaxis_title="Weekly price (NOK/MWh)",
+                height=300,
+                margin=dict(l=50, r=20, t=20, b=40),
+            )
+            st.plotly_chart(fig_px, use_container_width=True)
+        except Exception:
+            st.warning("The price comparison for this year couldn't be loaded.")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -527,8 +538,10 @@ with tab_live:
 
     if st.button("Recompute", type="primary", use_container_width=False):
         with st.spinner(f"Solving OL + PF LPs for {live_year} with S_max = {s_max_j} GWh..."):
+            from app.live_solver import LiveSolveError, run_live_solve
+
+            st.session_state.pop("live_result", None)
             try:
-                from app.live_solver import run_live_solve
                 tree      = load_scenario_tree(live_year)
                 panel_yr  = get_year_panel(live_year)
                 s_init    = s_init_for_year(live_year, "phase_b")
@@ -537,9 +550,32 @@ with tab_live:
                 st.session_state["live_result"]  = result
                 st.session_state["live_year"]    = live_year
                 st.session_state["live_s_max_j"] = s_max_j
-            except Exception as e:
-                st.error(f"Solve failed: {e}")
-                raise
+            except LiveSolveError as e:
+                if e.infeasible:
+                    st.error(
+                        "That combination of settings doesn't leave a physically "
+                        "possible way to manage the reservoir. The capacity you've "
+                        "chosen is too small to hold the water this plant is "
+                        "actually carrying at the start of the year, even running "
+                        "flat out. Try a larger capacity, or pick a different year."
+                    )
+                else:
+                    st.error(
+                        "The solver couldn't find a workable schedule for this "
+                        "combination of settings. Try a different capacity value "
+                        "or a different year."
+                    )
+            except FileNotFoundError:
+                st.error(
+                    "The data needed for this year isn't available. Try a "
+                    "different year from the slider."
+                )
+            except Exception:
+                st.error(
+                    "Something went wrong while preparing or running the "
+                    "calculation for this year. Try a different year or "
+                    "capacity value."
+                )
 
     # Show result if available
     if "live_result" in st.session_state and st.session_state.get("live_year") == live_year:
