@@ -154,6 +154,32 @@ st.markdown(
     "left on the table even for the adaptive approach."
 )
 
+with st.expander("Quick reference: what do OL, CL, PF, and the other shorthand mean?"):
+    st.markdown(
+        "You'll see the same handful of abbreviations on almost every tab, so "
+        "here they are in one place.\n\n"
+        "**OL, open-loop**: the plan made once, at the start of the year, and "
+        "never changed afterward, no matter what the weather or prices "
+        "actually do.\n\n"
+        "**CL, closed-loop**: the plan that gets re-checked and adjusted "
+        "every quarter as the year goes on, reacting to what's actually "
+        "happened so far.\n\n"
+        "**PF, perfect foresight**: a benchmark that isn't a real strategy "
+        "anyone could follow, it assumes you already knew exactly what the "
+        "weather and prices would do for the whole year. It shows the best "
+        "anyone could possibly have done, so the other two can be measured "
+        "against it.\n\n"
+        "**VoF, value of flexibility**: the closed-loop plan's revenue minus "
+        "the open-loop plan's revenue. This is the main number the whole "
+        "project is trying to estimate, in plain terms, how much it's worth "
+        "to be able to react instead of committing up front.\n\n"
+        "**MNOK**: million Norwegian kroner, the currency unit used for "
+        "every revenue and value figure in the app.\n\n"
+        "**GWh**: gigawatt hours, the unit used for both the water stored in "
+        "the reservoir and the electricity generated each week, measured in "
+        "terms of the energy it represents rather than its volume."
+    )
+
 # ── Load data ─────────────────────────────────────────────────────────────────
 
 pa  = load_phase_a()
@@ -781,7 +807,10 @@ with tab_live:
 
 st.divider()
 st.markdown(
-    "Full technical methodology: `docs/methodology.md`. "
-    "Key findings summary: `docs/key_findings.md`. "
-    "Data sources: `data/raw/SOURCES.md`."
+    "If you want to go deeper than what's on this page, the full write-up "
+    "is in the project's own files. `docs/methodology.md` covers exactly how "
+    "the model is built and every assumption behind it. `docs/key_findings.md` "
+    "is a short summary of what the 22 year backtest actually found. "
+    "`data/raw/SOURCES.md` lists exactly where the river flow and price data "
+    "came from, in case you want to check it yourself."
 )
