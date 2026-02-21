@@ -180,6 +180,27 @@ with st.expander("Quick reference: what do OL, CL, PF, and the other shorthand m
         "terms of the energy it represents rather than its volume."
     )
 
+with st.expander("How to use this app"):
+    st.markdown(
+        "There are three tabs below, and they're ordered to make sense in "
+        "that order.\n\n"
+        "Start with **Capacity explorer**. Pick a year, leave the slider "
+        "where it is, and hit Recompute. That alone gives you a feel for "
+        "the two extremes this whole project compares, a plan made in "
+        "advance against the best possible outcome in hindsight. Then try "
+        "dragging the slider and recomputing again to see how the gap "
+        "between them changes.\n\n"
+        "Once that clicks, move to **Year detail**. Pick any year from the "
+        "slider in the sidebar and you'll see how that single year actually "
+        "played out, week by week, with real numbers attached to each of "
+        "the three approaches.\n\n"
+        "Finally, **VoF Over Time** zooms out to all 22 years at once, so "
+        "you can see the bigger pattern rather than one year in isolation.\n\n"
+        "The sidebar controls apply across tabs: the model choice, the year "
+        "you're looking at, and the year filter all carry over wherever you "
+        "go."
+    )
+
 # ── Load data ─────────────────────────────────────────────────────────────────
 
 pa  = load_phase_a()
