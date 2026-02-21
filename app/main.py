@@ -130,24 +130,28 @@ st.markdown(
     "predict either. The operator has to decide, again and again, how much "
     "water to release now and sell as electricity, and how much to hold back "
     "in case prices rise later or a dry spell hits.\n\n"
-    "There are two very different ways to handle this. You could plan the "
-    "whole year ahead of time and stick to that plan no matter what actually "
-    "happens with weather or prices. Or you could keep adjusting as the year "
-    "goes on, reacting to whatever the weather and the market actually do. "
-    "The second approach should, in theory, do better, since you are using "
-    "more information. The question this project asks is how much better, in "
-    "real terms, on a real Norwegian river, using real historical weather and "
-    "price data, not just in theory.\n\n"
+    "This project looks at that problem on a real river in southern Norway, "
+    "the Arendalsvassdraget, using 22 years of real historical data from 2003 "
+    "to 2024, including river flow records, electricity prices from the NO2 "
+    "price zone, and the actual capacity of the power plants involved.\n\n"
+    "There are two very different ways an operator could handle this. You "
+    "could plan the whole year ahead of time and stick to that plan no matter "
+    "what actually happens with weather or prices. Or you could keep "
+    "adjusting as the year goes on, reacting to whatever the weather and the "
+    "market actually do. The second approach should, in theory, do better, "
+    "since you are using more information as it becomes available. The "
+    "question this project asks is how much better, in real terms, not just "
+    "in theory, and where in the river system that benefit actually shows up.\n\n"
     "To answer that, this project builds two versions of the same underlying "
-    "model. One treats an entire stretch of river as a single large "
-    "reservoir. The other is more realistic and follows three actual power "
-    "plants in sequence along the same river, each with its own real size and "
-    "capacity, since water released by one plant becomes the next plant's "
-    "water supply. Both versions are tested against 22 real historical years, "
-    "comparing a plan made in advance, a plan that adapts as the year "
-    "unfolds, and a third benchmark that assumes perfect knowledge of the "
-    "future, just to see how much is left on the table even for the adaptive "
-    "approach."
+    "model. One treats the whole river as a single large reservoir. The "
+    "other is more realistic and follows three actual power plants in "
+    "sequence along the river, Jorundland, Evenstad, and Rygene, each with "
+    "its own real size and capacity, since water released by one plant "
+    "becomes the next plant's water supply downstream. Both versions are "
+    "tested against all 22 historical years, comparing a plan made in "
+    "advance, a plan that adapts as the year unfolds, and a third benchmark "
+    "that assumes perfect knowledge of the future, just to see how much is "
+    "left on the table even for the adaptive approach."
 )
 
 # ── Load data ─────────────────────────────────────────────────────────────────
@@ -265,6 +269,14 @@ with tab_overview:
                 margin=dict(l=50, r=20, t=60, b=50),
             )
             st.plotly_chart(fig, use_container_width=True)
+            st.caption(
+                "Each bar is one year. Its height is how much extra revenue "
+                "Jorundland earned that year from being able to adapt as "
+                "things unfolded, compared to sticking to a plan made in "
+                "advance. A bar below the zero line means adapting actually "
+                "did worse that year. The unit is million Norwegian kroner "
+                "per year (MNOK/yr)."
+            )
 
             # Summary stats
             col1, col2, col3 = st.columns(3)
@@ -357,6 +369,13 @@ with tab_overview:
             margin=dict(l=50, r=20, t=60, b=50),
         )
         st.plotly_chart(fig, use_container_width=True)
+        st.caption(
+            "Each bar is one year. Its height is how much extra revenue the "
+            "system earned that year from being able to adapt as things "
+            "unfolded, compared to sticking to a plan made in advance. A bar "
+            "below the zero line means adapting actually did worse that "
+            "year. The unit is million Norwegian kroner per year (MNOK/yr)."
+        )
 
         col1, col2, col3 = st.columns(3)
         nrm_vof = pa[pa["year"].isin(NORMAL_YEARS)]["VoF_MNOK"]
@@ -481,6 +500,16 @@ with tab_year:
                          f"{year}: storage, generation, inflow, and price. "
                          "Blue = open-loop, green = closed-loop, purple = perfect foresight."
                      ))
+            st.caption(
+                "The storage line shows how full the reservoir is, in energy "
+                "terms, week by week over the year. The dotted red line near "
+                "the top marks the reservoir's maximum capacity. When a line "
+                "goes flat at the top, the reservoir is full and any extra "
+                "water has to spill or be released regardless of what the "
+                "policy would otherwise choose. When it goes flat at zero, "
+                "the reservoir is empty and there's simply no water left to "
+                "release that week."
+            )
         else:
             st.info(f"Trajectory figure not found for {year}.")
     except Exception:
@@ -528,13 +557,18 @@ with tab_live:
         "the three power plants studied: Jorundland, the one with real water "
         "storage behind it. Move the slider to change how big that plant's "
         "reservoir is assumed to be, then press recompute and the math gets "
-        "solved fresh, right then, for whichever year you've picked. The plot "
-        "you get shows two lines: one is a release plan committed up front "
-        "without knowing the future, the other is the best possible outcome if "
-        "you somehow knew the future in advance. The numbers above the plot are "
-        "the revenue each approach actually earns, and the gap between them is "
+        "solved fresh, right then, for whichever year you've picked. Two of the "
+        "numbers you'll see are recomputed live: a release plan committed up "
+        "front without knowing the future, and the best possible outcome if you "
+        "somehow knew the future in advance. The gap between those two is "
         "roughly the value of having better information, not the value of "
-        "flexibility itself, since this open-loop plan is never revised."
+        "flexibility itself, since this open-loop plan is never revised. The "
+        "fourth number, the closed-loop value of flexibility, is not part of "
+        "this live experiment. It's pulled straight from the original 22 year "
+        "backtest at the plant's actual real world capacity, shown here for "
+        "reference so you can compare what the slider is telling you against "
+        "the project's main finding. That one stays fixed no matter where you "
+        "move the slider, since it isn't being recomputed."
     )
 
     colA, colB = st.columns([1, 1])
@@ -678,6 +712,17 @@ with tab_live:
             margin=dict(l=50, r=20, t=40, b=50),
         )
         st.plotly_chart(fig_traj, use_container_width=True)
+        st.caption(
+            "Both lines show how full Jorundland's reservoir is over the year "
+            "at the capacity you've set with the slider, marked by the dashed "
+            "grey line. The solid blue line is the committed plan, made "
+            "without knowing how the year would turn out. The dotted purple "
+            "line is the perfect foresight plan, which already knows the real "
+            "prices and inflow for every week, so it can sometimes hold more "
+            "water back, or release more of it, than the committed plan would "
+            "dare to. That's what reacting to the real future, rather than "
+            "guessing at it, looks like."
+        )
 
         # Jorundland generation schedule
         st.subheader(f"Jorundland weekly generation: {live_year}")
