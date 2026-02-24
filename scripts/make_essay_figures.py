@@ -11,6 +11,7 @@ Run with:  python scripts/make_essay_figures.py
 """
 from __future__ import annotations
 
+import shutil
 import sys
 from pathlib import Path
 
@@ -141,6 +142,71 @@ def fig2_regime_shift_mechanism():
     print(f"  routing-lag divergence correlation r = {r_lag:.3f}, p = {p_lag:.2e}")
 
 
+def fig3_storage_trajectory_2022():
+    """
+    Copies the existing, already-computed cascade trajectory diagnostic
+    plot for 2022 (results/figures/cascade_trajectory_2022.png) into the
+    essay figure folder. Not regenerated: this is the same plot produced
+    by src/backtest/run_cascade_backtest.py as part of the official
+    backtest pipeline. Its top panel (Jorundland storage under OL/CL/PF)
+    is the evidence cited for ruling out reservoir saturation as the
+    cause of 2022's VoF instability.
+    """
+    src = ROOT / "results/figures/cascade_trajectory_2022.png"
+    dst = OUT_DIR / "fig3_storage_trajectory_2022.png"
+    shutil.copyfile(src, dst)
+    print(f"Copied {src} -> {dst}")
+
+
+def fig4_phaseA_vs_phaseB():
+    """
+    Year-by-year VoF comparison between the Phase A single-reservoir
+    model and the Phase B cascade model (Jorundland only), to make the
+    cross-model consistency claim in Section 4.2 visual rather than only
+    verbal. Both series come directly from the existing backtest result
+    tables; no new computation.
+    """
+    pa = pd.read_csv(ROOT / "results/tables/backtest_results.csv")
+    pb = pd.read_csv(ROOT / "results/tables/cascade_backtest_results.csv")
+
+    pa = pa.sort_values("year")
+    pb = pb.sort_values("year")
+    pa_vof = pa["value_of_flexibility_NOK"].values / 1e6
+    pb_vof = pb["VoF_J_MNOK"].values
+    years = pa["year"].values
+    crisis_mask = np.isin(years, EXTREME_YEARS)
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(9, 6), sharex=True)
+
+    colors_pa = ["#F59E0B" if c else "#1D4ED8" for c in crisis_mask]
+    ax1.bar(years, pa_vof, color=colors_pa, width=0.7)
+    ax1.axhline(0, color="black", linewidth=0.8)
+    ax1.set_ylabel("VoF, Phase A\n(single reservoir, MNOK/yr)")
+    ax1.set_title("(a) Phase A: single aggregated reservoir, S_max = 1300 GWh")
+
+    colors_pb = ["#F59E0B" if c else "#1D4ED8" for c in crisis_mask]
+    ax2.bar(years, pb_vof, color=colors_pb, width=0.7)
+    ax2.axhline(0, color="black", linewidth=0.8)
+    ax2.set_xlabel("Year")
+    ax2.set_ylabel("VoF_J, Phase B\n(Jorundland, MNOK/yr)")
+    ax2.set_title("(b) Phase B: three-plant cascade, S_max_J = 167 GWh")
+
+    from matplotlib.patches import Patch
+    handles = [
+        Patch(facecolor="#1D4ED8", label="Normal years"),
+        Patch(facecolor="#F59E0B", label="Crisis years (2018, 2021-2024)"),
+    ]
+    ax1.legend(handles=handles, fontsize=8.5, loc="upper left", framealpha=0.9)
+
+    fig.tight_layout()
+    out_path = OUT_DIR / "fig4_phaseA_vs_phaseB.png"
+    fig.savefig(out_path, dpi=200)
+    plt.close(fig)
+    print(f"Saved {out_path}")
+
+
 if __name__ == "__main__":
     fig1_vof_decomposition()
     fig2_regime_shift_mechanism()
+    fig3_storage_trajectory_2022()
+    fig4_phaseA_vs_phaseB()
