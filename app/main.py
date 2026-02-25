@@ -1,5 +1,5 @@
 """
-Interactive demo: Value of Flexibility in Hydropower Reservoir Scheduling
+Interactive demo: Realized Gain from Adaptive Hydropower Reservoir Scheduling
 
 Run with:  streamlit run app/main.py
 """
@@ -97,7 +97,7 @@ with st.sidebar:
             help=(
                 "Lag=0 assumes J's release reaches E/R in the same weekly step "
                 "(realistic: travel time 4-8 h). Lag=1 assumes a one-week delay. "
-                "Toggle to see how sensitive VoF_J is to this assumption."
+                "Toggle to see how sensitive Jorundland's realized CL-OL gain is to this assumption."
             ),
         )
         use_lag1 = "lag = 1" in lag
@@ -109,7 +109,7 @@ with st.sidebar:
             f"Crisis years are those where the annual mean NO2 price exceeded "
             f"{EXTREME_THRESHOLD:.0f} NOK/MWh (mean + 1.5 std of 2003-2020 reference). "
             f"These years (2018, 2021-2024) sit outside the scenario tree's "
-            f"training distribution, making VoF estimates unreliable."
+            f"training distribution, making realized CL-OL gain estimates unreliable."
         ),
     )
 
@@ -121,7 +121,7 @@ with st.sidebar:
 
 # ── Header ───────────────────────────────────────────────────────────────────
 
-st.title("Value of Flexibility in Hydropower Scheduling")
+st.title("Realized Gain from Adaptive Reservoir Scheduling")
 st.caption(
     "Built by Reza Azad Gholami "
     "([@eigenreza](https://github.com/eigenreza)). "
@@ -176,10 +176,15 @@ with st.expander("Quick reference: what do OL, CL, PF, and the other shorthand m
         "weather and prices would do for the whole year. It shows the best "
         "anyone could possibly have done, so the other two can be measured "
         "against it.\n\n"
-        "**VoF, value of flexibility**: the closed-loop plan's revenue minus "
-        "the open-loop plan's revenue. This is the main number the whole "
+        "**Realized CL-OL gain** (labelled VoF in the charts and underlying "
+        "tables, for historical reasons): the closed-loop plan's revenue "
+        "minus the open-loop plan's revenue, both measured against what "
+        "actually happened that year. This is the main number the whole "
         "project is trying to estimate, in plain terms, how much it's worth "
-        "to be able to react instead of committing up front.\n\n"
+        "to be able to react instead of committing up front. It is an "
+        "after-the-fact comparison, not a guaranteed-nonnegative quantity: "
+        "it can come out negative in a year where reacting turned out worse "
+        "than the fixed plan.\n\n"
         "**MNOK**: million Norwegian kroner, the currency unit used for "
         "every revenue and value figure in the app.\n\n"
         "**GWh**: gigawatt hours, the unit used for both the water stored in "
@@ -201,7 +206,7 @@ with st.expander("How to use this app"):
         "slider in the sidebar and you'll see how that single year actually "
         "played out, week by week, with real numbers attached to each of "
         "the three approaches.\n\n"
-        "Finally, **VoF Over Time** zooms out to all 22 years at once, so "
+        "Finally, **Realized Gain Over Time** zooms out to all 22 years at once, so "
         "you can see the bigger pattern rather than one year in isolation.\n\n"
         "The sidebar controls apply across tabs: the model choice, the year "
         "you're looking at, and the year filter all carry over wherever you "
@@ -224,8 +229,8 @@ def filter_years(df, year_col="year"):
 
 # ── Colour palette (consistent across tabs) ──────────────────────────────────
 
-CLR_POS    = "#2563EB"   # blue for positive VoF
-CLR_NEG    = "#DC2626"   # red for negative VoF
+CLR_POS    = "#2563EB"   # blue for positive realized gain
+CLR_NEG    = "#DC2626"   # red for negative realized gain
 CLR_CRISIS = "#F59E0B"   # amber for crisis years
 CLR_NORMAL = "#6B7280"   # grey accent
 CLR_OL     = "#1D4ED8"
@@ -237,25 +242,25 @@ CLR_PF     = "#7C3AED"
 tab_live, tab_year, tab_overview = st.tabs([
     "Capacity explorer (live)",
     f"Year detail: {year}",
-    "VoF Over Time",
+    "Realized Gain Over Time",
 ])
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# TAB 1: VoF time series
+# TAB 1: realized CL-OL gain time series
 # ═══════════════════════════════════════════════════════════════════════════════
 
 with tab_overview:
     st.markdown(
         "This tab steps back and shows the full picture across all 22 years at "
-        "once. Each bar is one year, and its height shows how much extra value "
-        "flexibility provided that year, or how much it cost if the bar dips "
+        "once. Each bar is one year, and its height shows how much extra revenue "
+        "adapting the plan produced that year, or how much it cost if the bar dips "
         "below zero. The shaded years mark the 2021 to 2024 energy crisis, when "
         "prices moved in ways nothing in the historical record had prepared the "
         "model for. That's why those years look so much more erratic than the rest."
     )
     if is_cascade:
         # Phase B: show lag=0 vs lag=1 overlay, or per-plant decomposition
-        subtab_ts, subtab_decomp = st.tabs(["VoF time series", "Per-plant decomposition"])
+        subtab_ts, subtab_decomp = st.tabs(["Realized gain over time", "Per-plant decomposition"])
 
         with subtab_ts:
             df_filt = filter_years(pb1, "year")
@@ -271,7 +276,7 @@ with tab_overview:
             opacities0 = [0.5 if cr else 0.85 for cr in crisis_mask]
 
             fig.add_trace(go.Bar(
-                x=yr_vals, y=vof0, name="VoF_J  lag=0",
+                x=yr_vals, y=vof0, name="Jorundland gain, lag=0",
                 marker_color=colors0,
                 marker_opacity=opacities0,
                 offsetgroup=0,
@@ -282,7 +287,7 @@ with tab_overview:
                 vof1 = df_filt["VoF_J_lag1"].values
                 colors1 = [CLR_NEG if v < 0 else "#10B981" for v in vof1]
                 fig.add_trace(go.Bar(
-                    x=yr_vals, y=vof1, name="VoF_J  lag=1",
+                    x=yr_vals, y=vof1, name="Jorundland gain, lag=1",
                     marker_color=colors1,
                     marker_opacity=[0.5 if cr else 0.85 for cr in crisis_mask],
                     offsetgroup=1,
@@ -293,7 +298,7 @@ with tab_overview:
                 colors_show = [CLR_NEG if v < 0 else CLR_POS for v in vof_show]
                 fig.data = []
                 fig.add_trace(go.Bar(
-                    x=yr_vals, y=vof_show, name="VoF_J  lag=1",
+                    x=yr_vals, y=vof_show, name="Jorundland gain, lag=1",
                     marker_color=colors_show,
                     marker_opacity=opacities0,
                 ))
@@ -315,9 +320,9 @@ with tab_overview:
 
             fig.add_hline(y=0, line_color="#999", line_width=1)
             fig.update_layout(
-                title=f"Phase B: Annual VoF_J (Jorundland), {lag.split(' ')[2]} routing",
+                title=f"Phase B: Annual realized gain at Jorundland, {lag.split(' ')[2]} routing",
                 xaxis_title="Year",
-                yaxis_title="VoF_J (MNOK/yr)",
+                yaxis_title="Realized gain (MNOK/yr)",
                 legend=dict(orientation="h", yanchor="bottom", y=1.02),
                 height=380,
                 margin=dict(l=50, r=20, t=60, b=50),
@@ -339,20 +344,20 @@ with tab_overview:
             nrm = pb1[pb1["year"].isin(NORMAL_YEARS)][sel_col]
             ext = pb1[pb1["year"].isin(EXTREME_YEARS)][sel_col]
             with col1:
-                st.metric("All years: mean VoF_J", f"{sub.mean():.2f} MNOK/yr",
+                st.metric("All years: mean realized gain", f"{sub.mean():.2f} MNOK/yr",
                           f"std {sub.std():.1f}")
             with col2:
-                st.metric("Normal years: mean VoF_J", f"{nrm.mean():.2f} MNOK/yr",
+                st.metric("Normal years: mean realized gain", f"{nrm.mean():.2f} MNOK/yr",
                           f"std {nrm.std():.1f}  (n={len(nrm)})")
             with col3:
-                st.metric("Crisis years: mean VoF_J", f"{ext.mean():.2f} MNOK/yr",
+                st.metric("Crisis years: mean realized gain", f"{ext.mean():.2f} MNOK/yr",
                           f"std {ext.std():.1f}  (n={len(ext)})")
 
             st.caption(
                 "Crisis years (amber shading) had annual mean prices above "
                 f"{EXTREME_THRESHOLD:.0f} NOK/MWh, far outside the scenario "
                 "tree's training distribution. Both OL and CL policies worked "
-                "from miscalibrated forecasts, making VoF estimates unreliable."
+                "from miscalibrated forecasts, making realized CL-OL gain estimates unreliable."
             )
 
         with subtab_decomp:
@@ -374,8 +379,8 @@ with tab_overview:
             fig2.add_hline(y=0, line_color="#999", line_width=1)
             fig2.update_layout(
                 barmode="stack",
-                title="Phase B: Per-plant VoF decomposition (lag=0)",
-                xaxis_title="Year", yaxis_title="VoF (MNOK/yr)",
+                title="Phase B: Per-plant realized gain decomposition (lag=0)",
+                xaxis_title="Year", yaxis_title="Realized gain (MNOK/yr)",
                 legend=dict(orientation="h", yanchor="bottom", y=1.02),
                 height=380,
                 margin=dict(l=50, r=20, t=60, b=50),
@@ -383,12 +388,12 @@ with tab_overview:
             st.plotly_chart(fig2, use_container_width=True)
 
             st.info(
-                "Evenstad and Rygene have VoF = 0.000 in every single year, "
-                "regardless of the routing assumption. Both plants' local inflow "
-                "exceeds their turbine capacity in every week of the 26-year "
-                "record. They run flat out regardless of policy. All flexibility "
-                "value in the cascade lives at Jorundland, the only node with "
-                "meaningful reservoir storage."
+                "Evenstad and Rygene have a realized CL-OL gain of 0.000 MNOK "
+                "in every single year, regardless of the routing assumption. "
+                "Both plants' local inflow exceeds their turbine capacity in "
+                "every week of the 26-year record. They run flat out regardless "
+                "of policy. All the realized gain in the cascade lives at "
+                "Jorundland, the only node with meaningful reservoir storage."
             )
 
     else:
@@ -400,7 +405,7 @@ with tab_overview:
 
         fig = go.Figure()
         fig.add_trace(go.Bar(
-            x=yr_vals, y=vof_vals, name="VoF (MNOK/yr)",
+            x=yr_vals, y=vof_vals, name="Realized gain (MNOK/yr)",
             marker_color=[CLR_NEG if v < 0 else CLR_POS for v in vof_vals],
             marker_opacity=[0.5 if cr else 0.85 for cr in crisis_mask],
         ))
@@ -417,8 +422,8 @@ with tab_overview:
             annotation_font_size=10,
         )
         fig.update_layout(
-            title="Phase A: Annual value of flexibility (CL revenue - OL revenue)",
-            xaxis_title="Year", yaxis_title="VoF (MNOK/yr)",
+            title="Phase A: Annual realized CL-OL gain (CL revenue minus OL revenue)",
+            xaxis_title="Year", yaxis_title="Realized gain (MNOK/yr)",
             height=380,
             margin=dict(l=50, r=20, t=60, b=50),
         )
@@ -435,7 +440,7 @@ with tab_overview:
         nrm_vof = pa[pa["year"].isin(NORMAL_YEARS)]["VoF_MNOK"]
         ext_vof = pa[pa["year"].isin(EXTREME_YEARS)]["VoF_MNOK"]
         with col1:
-            st.metric("All years: mean VoF", f"{pa['VoF_MNOK'].mean():.1f} MNOK/yr",
+            st.metric("All years: mean realized gain", f"{pa['VoF_MNOK'].mean():.1f} MNOK/yr",
                       f"std {pa['VoF_MNOK'].std():.1f}")
         with col2:
             st.metric("Normal years", f"{nrm_vof.mean():.1f} MNOK/yr",
@@ -477,7 +482,7 @@ with tab_year:
             f"within the 2003-2020 reference distribution)."
         )
 
-    # Revenue and VoF metrics
+    # Revenue and realized-gain metrics
     try:
         if is_cascade:
             row_b = pb[pb["year"] == year].iloc[0]
@@ -496,13 +501,13 @@ with tab_year:
             with col4:
                 delta_sign = "+" if vof_val > 0 else ""
                 st.metric(
-                    f"VoF_J ({lag.split(' ')[2]})",
+                    f"Realized gain, Jorundland ({lag.split(' ')[2]})",
                     f"{delta_sign}{vof_val:.2f} MNOK",
                     help="CL - OL revenue at Jorundland"
                 )
 
-            # Per-plant VoF bar for this year
-            st.subheader("Per-plant VoF decomposition")
+            # Per-plant realized-gain bar for this year
+            st.subheader("Per-plant realized gain decomposition")
             plants = ["Jorundland", "Evenstad", "Rygene"]
             vof_plants = [row_b["VoF_J_MNOK"], row_b["VoF_E_MNOK"], row_b["VoF_R_MNOK"]]
             fig_decomp = go.Figure(go.Bar(
@@ -513,14 +518,15 @@ with tab_year:
             fig_decomp.update_layout(
                 height=200,
                 margin=dict(l=10, r=20, t=20, b=40),
-                xaxis_title="VoF (MNOK)",
+                xaxis_title="Realized gain (MNOK)",
             )
             st.plotly_chart(fig_decomp, use_container_width=True)
             if row_b["VoF_E_MNOK"] == 0.0 and row_b["VoF_R_MNOK"] == 0.0:
                 st.caption(
-                    "VoF_E and VoF_R are exactly zero: both plants' local inflow "
-                    "exceeds their turbine capacity in every week, so policy choice "
-                    "at Jorundland does not change their generation."
+                    "Evenstad's and Rygene's realized gain is exactly zero: both "
+                    "plants' local inflow exceeds their turbine capacity in every "
+                    "week, so policy choice at Jorundland does not change their "
+                    "generation."
                 )
 
         else:
@@ -534,7 +540,7 @@ with tab_year:
                 st.metric("PF revenue", f"{row_a['PF_MNOK']:.1f} MNOK")
             with col4:
                 v = row_a["VoF_MNOK"]
-                st.metric("VoF", f"{'+'  if v > 0 else ''}{v:.1f} MNOK")
+                st.metric("Realized gain", f"{'+'  if v > 0 else ''}{v:.1f} MNOK")
     except (IndexError, KeyError):
         st.warning(
             "There's no precomputed result for this year and model combination. "
@@ -616,7 +622,7 @@ with tab_year:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 with tab_live:
-    st.subheader("Capacity explorer: how does VoF change with Jorundland's reservoir size?")
+    st.subheader("Capacity explorer: how does realized gain change with Jorundland's reservoir size?")
     st.markdown(
         "This tab lets you test the core idea of the project directly, on one of "
         "the three power plants studied: Jorundland, the one with real water "
@@ -626,9 +632,9 @@ with tab_live:
         "numbers you'll see are recomputed live: a release plan committed up "
         "front without knowing the future, and the best possible outcome if you "
         "somehow knew the future in advance. The gap between those two is "
-        "roughly the value of having better information, not the value of "
-        "flexibility itself, since this open-loop plan is never revised. The "
-        "fourth number, the closed-loop value of flexibility, is not part of "
+        "roughly the value of having better information, not the realized "
+        "CL-OL gain itself, since this open-loop plan is never revised. The "
+        "fourth number, the closed-loop realized gain, is not part of "
         "this live experiment. It's pulled straight from the original 22 year "
         "backtest at the plant's actual real world capacity, shown here for "
         "reference so you can compare what the slider is telling you against "
@@ -732,9 +738,9 @@ with tab_live:
             vof_col = "VoF_J_MNOK"
             ref_vof = float(pb[pb["year"] == live_year][vof_col].iloc[0]) if len(row_ref) else None
             st.metric(
-                "CL - OL VoF (from backtest)",
+                "CL - OL realized gain (from backtest)",
                 f"{ref_vof:.2f} MNOK" if ref_vof is not None else "n/a",
-                help="Pre-computed VoF from the full closed-loop backtest at S_max=167 GWh",
+                help="Pre-computed realized gain from the full closed-loop backtest at S_max=167 GWh",
             )
 
         # Storage trajectory comparison
