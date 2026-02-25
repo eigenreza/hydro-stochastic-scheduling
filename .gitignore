@@ -93,5 +93,6 @@ docs/essay_preview*.png
 # for it: this is a local-only deliverable, never pushed to the public repo.
 docs/essay.md
 docs/essay.tex
+docs/*.png
 results/figures/essay/
 scripts/make_essay_figures.py

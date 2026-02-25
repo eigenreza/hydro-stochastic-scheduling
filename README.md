@@ -1,6 +1,9 @@
 # Stochastic Hydropower Reservoir Scheduling
 
-Quantifies the **value of operational flexibility** in weekly hydropower reservoir release scheduling under joint inflow and electricity price uncertainty, using real data from the Arendalsvassdraget system in southern Norway.
+**[Try the live demo &rarr;](https://hydro-stochastic-scheduling-4cbxqucbjnzmsjdzeynepg.streamlit.app/)**
+A browser-based tool for exploring the backtest results directly: year-by-year realized-gain breakdowns, a normal-vs-crisis filter, routing-lag sensitivity, and a live reservoir-capacity slider that re-solves the optimization on demand. (Free-tier hosting; if the app has been idle it may take a few seconds to wake up.)
+
+Quantifies the **ex-post realized gain from adaptive reservoir scheduling** in weekly hydropower reservoir release scheduling under joint inflow and electricity price uncertainty, using real data from the Arendalsvassdraget system in southern Norway.
 
 Three release policies are compared across a 22-year backtest (2003-2024):
 
@@ -12,18 +15,18 @@ Three release policies are compared across a 22-year backtest (2003-2024):
 
 The key metrics are:
 
-- **Value of flexibility (VoF)** = CL revenue minus OL revenue
+- **Realized CL--OL gain** = CL revenue minus OL revenue on the realized historical path
 - **Residual regret** = PF revenue minus CL revenue
 
-Both are computed over an out-of-sample backtest on real historical data.
+Both are computed over an out-of-sample backtest on real historical data. In older output files this quantity is sometimes abbreviated as VoF, but in the paper it is interpreted as an ex-post realized CL--OL gain, not as the canonical expected value of recourse.
 
 ## Key findings
 
 See [docs/key_findings.md](docs/key_findings.md) for the full summary. In brief:
 
-1. In normal market conditions (2003-2020 price distribution), VoF at Jorundland is small but positive: approximately 3.4 MNOK/yr on average.
-2. Flexibility value concentrates entirely at the only plant with meaningful reservoir storage. The two run-of-river plants in the cascade contribute VoF = 0.000 in every year.
-3. During the 2021-2024 energy crisis, both OL and CL policies operated from scenario trees calibrated on a fundamentally different price distribution. VoF estimates for those years should not be interpreted as stable structural findings.
+1. In normal market conditions (2003-2020 price distribution), the realized CL--OL gain at Jorundland is small but positive: approximately 3.4 MNOK/yr on average.
+2. Flexibility value concentrates entirely at the only plant with meaningful reservoir storage. The two run-of-river plants in the cascade have realized CL--OL gain equal to 0.000 MNOK in every year.
+3. During the high-price/out-of-sample years, especially 2021-2024, both OL and CL policies operated from scenario trees calibrated on a fundamentally different price distribution. Realized CL--OL gain estimates for those years should not be interpreted as stable structural findings.
 
 ## Data sources
 
@@ -51,28 +54,7 @@ Key points:
 
 - Python 3.11 or newer
 - HiGHS LP solver (installed via `highspy`)
-- NVE HydAPI key in a `.env` file (see below)
-
-## Installation
-
-```
-git clone <this-repo>
-cd hydro-stochastic-scheduling
-python -m venv .venv
-.venv\Scripts\activate          # Windows
-source .venv/bin/activate       # Linux / macOS
-pip install -r requirements.txt
-```
-
-## Configuration
-
-Create a `.env` file at the project root (it is git-ignored) with your NVE API key:
-
-```
-NVE_API_KEY=your_key_here
-```
-
-Register for a free key at [hydapi.nve.no](https://hydapi.nve.no). The key is loaded via `python-dotenv` and never hardcoded.
+- An NVE HydAPI key (free, from [hydapi.nve.no](https://hydapi.nve.no)), set as `NVE_API_KEY` in a git-ignored `.env` file, only needed to re-run data acquisition
 
 ## Running the pipeline
 
@@ -118,13 +100,13 @@ python -m pytest tests/ -v
 
 Covers reservoir mass balance, non-anticipativity constraints, data cutoff enforcement, and scenario tree structure. All tests should pass.
 
-## Running the interactive demo
+## Running the interactive demo locally
+
+The same app as the [live demo](https://hydro-stochastic-scheduling-4cbxqucbjnzmsjdzeynepg.streamlit.app/) above, run from a local clone:
 
 ```
 streamlit run app/main.py
 ```
-
-Opens a browser-based tool for exploring the backtest results interactively. Features include year-by-year VoF breakdowns, lag sensitivity toggling, a normal-vs-crisis filter, and a live LP recompute for the Jorundland reservoir capacity slider.
 
 ## Project structure
 
@@ -185,6 +167,10 @@ All randomness is seeded:
 - Scenario generation: `np.random.default_rng(42)`
 
 Results are exactly reproducible given the same data and software versions listed in `requirements.txt`.
+
+## Author
+
+Reza Azad Gholami ([@eigenreza](https://github.com/eigenreza)). This repository is the project home; see the [live demo](https://hydro-stochastic-scheduling-4cbxqucbjnzmsjdzeynepg.streamlit.app/) above to explore the results directly.
 
 ## Licence
 

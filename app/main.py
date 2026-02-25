@@ -589,6 +589,17 @@ with tab_year:
                 margin=dict(l=50, r=20, t=20, b=40),
             )
             st.plotly_chart(fig_px, use_container_width=True)
+            st.caption(
+                "Each box covers the middle half of weekly prices that year "
+                "(25th to 75th percentile), the line inside is the median, "
+                "and the diamond is the average. The whiskers show the rest "
+                "of the range. If the selected year's box sits much higher "
+                "than the 2003-2020 reference box, or is much taller, prices "
+                "that year were either persistently higher than usual, more "
+                "volatile week to week, or both, which is exactly the "
+                "condition under which the forecasting model is working "
+                "outside the range it was built from."
+            )
         except Exception:
             st.warning("The price comparison for this year couldn't be loaded.")
 
@@ -795,6 +806,18 @@ with tab_live:
             margin=dict(l=50, r=20, t=40, b=50),
         )
         st.plotly_chart(fig_gen, use_container_width=True)
+        st.caption(
+            "This is the release decision itself, week by week, for the "
+            "same two policies as the storage chart above. The dashed line "
+            "at G_max_J is Jorundland's turbine capacity, 9.274 GWh/week: a "
+            "line touching it means the plant is running flat out that "
+            "week and could not have generated more even if it wanted to. "
+            "Weeks where the perfect-foresight line sits clearly above or "
+            "below the open-loop line are weeks where knowing the real "
+            "price in advance would have changed the release; compare "
+            "those weeks against the price bars below to see whether that "
+            "shift moved water toward the higher-price weeks."
+        )
 
         # Price context
         panel_yr = get_year_panel(live_year)
@@ -812,8 +835,9 @@ with tab_live:
         )
         st.plotly_chart(fig_pr, use_container_width=True)
         st.caption(
-            "Compare the PF schedule to the OL schedule against the price bars above: "
-            "the PF policy shifts releases toward high-price weeks."
+            "The realized weekly price for this year, on the same week axis "
+            "as the generation chart above. Tall bars are expensive weeks; "
+            "short bars are cheap ones."
         )
     else:
         st.info("Set the capacity and click Recompute to run a live LP solve.")
@@ -834,4 +858,11 @@ st.markdown(
     "is a short summary of what the 22 year backtest actually found. "
     "`data/raw/SOURCES.md` lists exactly where the river flow and price data "
     "came from, in case you want to check it yourself."
+)
+st.caption(
+    "Built by Reza Azad Gholami "
+    "([@eigenreza](https://github.com/eigenreza)). "
+    "Source code, data pipeline, and documentation: "
+    "[github.com/eigenreza/hydro-stochastic-scheduling]"
+    "(https://github.com/eigenreza/hydro-stochastic-scheduling)."
 )
