@@ -1,0 +1,15 @@
+# Minimal dependency set for the deployed Streamlit demo (app/main.py).
+# Streamlit Cloud uses this file instead of the repo-root requirements.txt
+# when it exists in the same folder as the app's entry point. The full
+# requirements.txt also installs the Bayesian forecasting stack (pymc,
+# pytensor, arviz, h5py, scikit-learn, statsmodels) needed only to
+# regenerate scenario trees offline; the live demo never imports any of
+# that, and that heavy build is what was likely breaking deployment.
+
+numpy>=2.0
+pandas>=2.1
+pyomo>=6.7,<7.0
+highspy>=1.7
+plotly>=5.18
+streamlit>=1.35,<2.0
+pillow>=10.0
