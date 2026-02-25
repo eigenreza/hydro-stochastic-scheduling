@@ -122,6 +122,13 @@ with st.sidebar:
 # ── Header ───────────────────────────────────────────────────────────────────
 
 st.title("Value of Flexibility in Hydropower Scheduling")
+st.caption(
+    "Built by Reza Azad Gholami "
+    "([@eigenreza](https://github.com/eigenreza)). "
+    "Source code, data pipeline, and documentation: "
+    "[github.com/eigenreza/hydro-stochastic-scheduling]"
+    "(https://github.com/eigenreza/hydro-stochastic-scheduling)."
+)
 st.markdown(
     "A hydropower operator running a reservoir faces a genuinely hard problem "
     "every single week. Water keeps arriving from rain and snowmelt, but nobody "
@@ -858,11 +865,4 @@ st.markdown(
     "is a short summary of what the 22 year backtest actually found. "
     "`data/raw/SOURCES.md` lists exactly where the river flow and price data "
     "came from, in case you want to check it yourself."
-)
-st.caption(
-    "Built by Reza Azad Gholami "
-    "([@eigenreza](https://github.com/eigenreza)). "
-    "Source code, data pipeline, and documentation: "
-    "[github.com/eigenreza/hydro-stochastic-scheduling]"
-    "(https://github.com/eigenreza/hydro-stochastic-scheduling)."
 )
