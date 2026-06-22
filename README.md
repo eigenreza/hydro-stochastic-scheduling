@@ -1,7 +1,7 @@
 # Stochastic Hydropower Reservoir Scheduling
 
-**[Try the live demo here:](https://hydro-stochastic-scheduling-4cbxqucbjnzmsjdzeynepg.streamlit.app/)**
-A browser-based tool for exploring the backtest results directly: year-by-year realized-gain breakdowns, a normal-vs-crisis filter, routing-lag sensitivity, and a live reservoir-capacity slider that re-solves the optimization on demand. (Free-tier hosting; if the app has been idle it may take a few seconds to wake up.)
+**[Try the live demo here](https://hydro-stochastic-scheduling-4cbxqucbjnzmsjdzeynepg.streamlit.app/)**
+: A browser-based tool for exploring the backtest results directly: year-by-year realized-gain breakdowns, a normal-vs-crisis filter, routing-lag sensitivity, and a live reservoir-capacity slider that re-solves the optimization on demand. (Free-tier hosting; if the app has been idle it may take a few seconds to wake up.)
 
 Quantifies the **ex-post realized gain from adaptive reservoir scheduling** in weekly hydropower reservoir release scheduling under joint inflow and electricity price uncertainty, using real data from the Arendalsvassdraget system in southern Norway.
 
